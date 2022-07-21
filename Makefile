@@ -21,7 +21,7 @@ cover:  ## Run test coverage suite
 build:  ## Builds the CLI
 	@go build ${GO_FLAGS} \
 	-ldflags "-w -s -X main.version=${VERSION} -X main.commit=${GIT_REV} -X main.date=${DATE}" \
-	-a -o ${OUTPUT_BIN} main.go
+	-v -o ${OUTPUT_BIN} main.go
 
 img:    ## Build Docker Image
 	@docker build --rm -t ${IMAGE} .
