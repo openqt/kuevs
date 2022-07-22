@@ -5,7 +5,7 @@ PACKAGE    := github.com/openqt/$(NAME)
 GIT_REV    ?= $(shell git rev-parse --short HEAD)
 SOURCE_DATE_EPOCH ?= $(shell date +%s)
 DATE       ?= $(shell date -u -d @${SOURCE_DATE_EPOCH} +"%Y-%m-%dT%H:%M:%SZ")
-VERSION    ?= v0.1
+VERSION    ?= v0.3
 IMG_NAME   := openqt/$(NAME)
 IMAGE      := ${IMG_NAME}:${VERSION}
 
@@ -19,7 +19,7 @@ cover:  ## Run test coverage suite
 	@go tool cover --html=cov.out
 
 build:  ## Builds the CLI
-	@go build ${GO_FLAGS} \
+	@CGO_ENABLED=1 go build ${GO_FLAGS} \
 	-ldflags "-w -s -X main.version=${VERSION} -X main.commit=${GIT_REV} -X main.date=${DATE}" \
 	-v -o ${OUTPUT_BIN} main.go
 

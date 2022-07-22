@@ -1,46 +1,29 @@
 package main
 
 import (
-	"context"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
 
 	"github.com/golang/glog"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/tools/clientcmd"
-
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"github.com/openqt/kuevs/kuevs"
 )
 
 var (
-	version, commit, date = "dev", "dev", ""
+	version, commit, date = "0.0", "dev", "0000"
 )
 
-func checkerr(err error) {
-	if err != nil {
-		glog.Errorln(err)
-	}
-}
-
 func main() {
-	// fmt.Printf("version : %s\ncommit  : %s\ncompiled: %s\n", version, commit, date)
-
 	kubeconfig := flag.String("kubeconfig", os.ExpandEnv("$HOME/.kube/config"), "absolute path to the kubeconfig file")
+	database := flag.String("database", "ks-events.sqlite", "set database filename")
+	ver := flag.Bool("version", false, "show current version")
 	flag.Parse()
+	defer glog.Flush()
 
-	config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
-	checkerr(err)
-
-	clienetset := kubernetes.NewForConfigOrDie(config)
-
-	watcher, err := clienetset.CoreV1().Events("").Watch(context.Background(), metav1.ListOptions{})
-	checkerr(err)
-
-	for event := range watcher.ResultChan() {
-		data, err := json.MarshalIndent(event, "", "  ")
-		checkerr(err)
-		fmt.Println(string(data))
+	if *ver {
+		fmt.Printf("version : %s\ncommit  : %s\ncompiled: %s\n", version, commit, date)
+		os.Exit(0)
 	}
+
+	kuevs.WatchEvent(*kubeconfig, *database)
 }
